@@ -14,11 +14,21 @@ type vmTest struct {
 	expected interface{}
 }
 
+func TestBooleanExpressions(t *testing.T) {
+	tests := []vmTest{
+		{"true", true},
+		{"false", false},
+	}
+
+	runVmTests(t, tests)
+}
+
 func TestIntegerArithmetic(t *testing.T) {
 	tests := []vmTest{
-		{"1", 1},
-		{"2", 2},
-		{"1 + 2", 3}, // fix to be 3 :)
+		{"1 + 2", 3},
+		{"1 - 2", -1},
+		{"1 * 2", 2},
+		{"2 / 1", 2},
 	}
 
 	runVmTests(t, tests)
@@ -32,6 +42,19 @@ func testIntegerObject(e int64, a object.Object) error {
 
 	if r.Value != e {
 		return fmt.Errorf("wrong value, got %d, want %d", r.Value, e)
+	}
+
+	return nil
+}
+
+func testBooleanObject(e bool, a object.Object) error {
+	r, ok := a.(*object.Boolean)
+	if !ok {
+		return fmt.Errorf("object is not Boolean, got %T", a)
+	}
+
+	if r.Value != e {
+		return fmt.Errorf("wrong value, got %t, want %t", r.Value, e)
 	}
 
 	return nil
@@ -55,7 +78,7 @@ func runVmTests(t *testing.T, tests []vmTest) {
 			t.Fatalf("vm error %s", err)
 		}
 
-		stackElement := vm.StackTop()
+		stackElement := vm.LastPoppedStackElement()
 		testExpectedObj(t, tt.expected, stackElement)
 	}
 }
@@ -67,6 +90,10 @@ func testExpectedObj(t *testing.T, e interface{}, a object.Object) {
 	case int:
 		if err := testIntegerObject(int64(e), a); err != nil {
 			t.Errorf("testing integer failed %s", err)
+		}
+	case bool:
+		if err := testBooleanObject(bool(e), a); err != nil {
+			t.Errorf("testing bool failed %s", err)
 		}
 	}
 }

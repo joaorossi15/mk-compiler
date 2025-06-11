@@ -37,8 +37,8 @@ func CompileRunVM(path string) error {
 		return err
 	}
 
-	fmt.Printf("Stack: %s\n", virtualMachine.stack[:virtualMachine.sp])
-	fmt.Println(virtualMachine.StackTop())
+	fmt.Printf("Stack: %s\n", virtualMachine.stack[:virtualMachine.sp+1])
+	fmt.Println(virtualMachine.LastPoppedStackElement())
 	return nil
 }
 
